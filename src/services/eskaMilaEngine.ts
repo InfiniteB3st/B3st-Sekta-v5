@@ -20,7 +20,7 @@ export const getEskaMilaResponse = async (input: string, context: any) => {
             
             CURRENT CONTEXT:
             - Supabase Handshake: 100% Precision required.
-            - Styling: Tailwind CSS, Inter font, #ffb100 (Gold) accents.
+            - Styling: Tailwind CSS, Inter font, var(--primary) accents.
             - Architecture: React (Vite) + Supabase.
             - Current Operator: ${context.user || 'ANONYMOUS_NODE'}.
             - Diagnostic Data: ${JSON.stringify(context)}.

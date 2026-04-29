@@ -251,7 +251,7 @@ How shall we optimize the Sekta architecture, Operator?`;
                      disabled={isTyping || !input.trim()}
                      className={cn(
                         "bg-primary text-black px-10 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[12px] transition-all disabled:opacity-20",
-                        !isTyping && input.trim() && "hover:shadow-[0_0_40px_#ffb10066] active:scale-95"
+                        !isTyping && input.trim() && "hover:shadow-[0_0_40px_var(--primary-color-rgb),0.4] active:scale-95"
                      )}
                   >
                      {isTyping ? <Activity size={20} className="animate-spin" /> : <Send size={20} />}

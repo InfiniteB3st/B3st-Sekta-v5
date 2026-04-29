@@ -70,8 +70,8 @@ export default function Login() {
   };
 
   return (
-    <div className="fixed inset-0 bg-black flex items-center justify-center p-6 z-[9999] font-sans selection:bg-[#ffb100]/30 overflow-y-auto">
-      <div className="absolute inset-0 bg-[#ffb100] opacity-[0.03] blur-[150px] animate-pulse" />
+    <div className="fixed inset-0 bg-black flex items-center justify-center p-6 z-[9999] font-sans selection:bg-primary/30 overflow-y-auto">
+      <div className="absolute inset-0 bg-primary opacity-[0.03] blur-[150px] animate-pulse" />
       
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
@@ -84,10 +84,10 @@ export default function Login() {
           <div className="text-center space-y-4">
             <h1 className="logo-text scale-125 justify-center flex items-center font-black leading-none gap-1">
               <span className="text-white">B3ST</span>
-              <span className="text-[#ffb100]">SEKTA</span>
+              <span className="text-primary">SEKTA</span>
             </h1>
             <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.4em] italic opacity-80 flex items-center justify-center gap-2">
-              <Zap size={10} className="text-[#ffb100]" /> Secure Sync Protocol v3.0
+              <Zap size={10} className="text-primary" /> Secure Sync Protocol v3.0
             </p>
           </div>
 
@@ -95,36 +95,36 @@ export default function Login() {
             <div className="space-y-4">
               {isSignUp && (
                 <div className="relative group">
-                  <User className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-[#ffb100] transition-colors" size={18} />
+                  <User className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-primary transition-colors" size={18} />
                   <input 
                     type="text" 
                     placeholder="USERNAME"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-6 pl-16 pr-6 text-xs font-black tracking-widest focus:outline-none focus:border-[#ffb100] transition-all text-white placeholder:text-gray-800"
+                    className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-6 pl-16 pr-6 text-xs font-black tracking-widest focus:outline-none focus:border-primary transition-all text-white placeholder:text-gray-800"
                     required={isSignUp}
                   />
                 </div>
               )}
               <div className="relative group">
-                <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-[#ffb100] transition-colors" size={18} />
+                <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-primary transition-colors" size={18} />
                 <input 
                   type="email" 
                   placeholder="IDENTITY"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-6 pl-16 pr-6 text-xs font-black tracking-widest focus:outline-none focus:border-[#ffb100] transition-all text-white placeholder:text-gray-800"
+                  className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-6 pl-16 pr-6 text-xs font-black tracking-widest focus:outline-none focus:border-primary transition-all text-white placeholder:text-gray-800"
                   required
                 />
               </div>
               <div className="relative group">
-                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-[#ffb100] transition-colors" size={18} />
+                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-primary transition-colors" size={18} />
                 <input 
                   type="password" 
                   placeholder="PASSCODE"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-6 pl-16 pr-6 text-xs font-black tracking-widest focus:outline-none focus:border-[#ffb100] transition-all text-white placeholder:text-gray-800"
+                  className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-6 pl-16 pr-6 text-xs font-black tracking-widest focus:outline-none focus:border-primary transition-all text-white placeholder:text-gray-800"
                   required
                 />
               </div>
@@ -142,7 +142,7 @@ export default function Login() {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full h-20 bg-[#ffb100] text-black font-black uppercase tracking-[0.2em] rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-2xl shadow-[#ffb100]/20"
+              className="w-full h-20 bg-primary text-black font-black uppercase tracking-[0.2em] rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-2xl shadow-primary/20"
             >
               {loading ? (
                 <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />

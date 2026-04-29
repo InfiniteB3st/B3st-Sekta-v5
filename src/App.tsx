@@ -56,15 +56,15 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
         <div className="min-h-screen bg-black flex flex-col items-center justify-center p-12 text-center space-y-12 animate-in fade-in duration-1000">
           <div className="relative">
             <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full animate-pulse" />
-            <div className="w-32 h-32 bg-white/5 border-2 border-primary/20 rounded-[2.5rem] flex items-center justify-center text-primary relative shadow-[0_0_50px_rgba(255,177,0,0.1)]">
+            <div className="w-32 h-32 bg-primary/20 border-2 border-primary/20 rounded-[2.5rem] flex items-center justify-center text-primary relative shadow-[0_0_50px_rgba(var(--primary-color-rgb),0.1)]">
                <ServerCrash size={64} className="animate-bounce" />
             </div>
           </div>
 
           <div className="space-y-6">
             <div className="flex items-center justify-center gap-2">
-               <span style={{ color: '#FFFFFF' }} className="text-4xl font-black italic uppercase tracking-tighter">B3st</span>
-               <span style={{ color: 'var(--primary-color, var(--primary))' }} className="text-4xl font-black italic uppercase tracking-tighter">Sekta</span>
+               <span style={{ color: '#FFFFFF' }} className="text-4xl font-black italic uppercase tracking-tighter">B3ST</span>
+               <span style={{ color: 'var(--primary-color)' }} className="text-4xl font-black italic uppercase tracking-tighter">SEKTA</span>
             </div>
             <h2 className="text-xl font-bold text-gray-400 uppercase tracking-[0.2em]">System Diagnostics Required</h2>
             <p className="text-gray-600 max-w-sm mx-auto text-[11px] font-medium leading-relaxed uppercase tracking-wider">
@@ -76,7 +76,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
           <div className="flex flex-col gap-4">
             <button 
               onClick={() => window.location.reload()}
-              className="px-12 py-5 bg-primary text-black font-black uppercase tracking-widest text-[11px] rounded-full hover:scale-110 active:scale-95 transition-all shadow-[0_0_40px_rgba(255,177,0,0.2)] flex items-center gap-3"
+              className="px-12 py-5 bg-primary text-black font-black uppercase tracking-widest text-[11px] rounded-full hover:scale-110 active:scale-95 transition-all shadow-[0_0_40px_rgba(var(--primary-color-rgb),0.2)] flex items-center gap-3"
             >
               <RefreshCw size={16} /> Re-Initialize Kernel
             </button>
@@ -311,23 +311,22 @@ function AppContent() {
         </Gatekeeper>
       </MasterGuard>
       <Suspense fallback={null}>
-        {user?.email?.toLowerCase() === 'wambuamaxwell696@gmail.com' && (
+        {user?.email?.toLowerCase() === 'wambuamaxwell696@gmail.com' && localStorage.getItem('sekta_eska_mila_enabled') !== 'false' && (
           <button 
             onClick={() => setShowEskaMila(prev => !prev)}
             style={{
               position: 'fixed',
               top: '20px',
-              right: '250px', // Shift left to not overlap if top-right button in overlay is present? 
-              // Actually, user wants it at Top Right. I'll put it at top 20, right 20.
+              right: '250px',
               zIndex: 999999,
               padding: '12px 24px',
-              background: 'linear-gradient(45deg, #ffb100 0%, #ff8c00 100%)',
+              background: 'linear-gradient(45deg, var(--primary) 0%, #ff8c00 100%)',
               color: 'black',
               borderRadius: '12px',
               fontWeight: '900',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
-              boxShadow: '0 0 30px rgba(255,177,0,0.5)',
+              boxShadow: '0 0 30px rgba(var(--primary-color-rgb),0.5)',
               border: '2px solid rgba(255,255,255,0.2)',
               cursor: 'pointer',
               display: 'flex',

@@ -166,7 +166,7 @@ export default function AnimeDetails() {
                        className="bg-primary text-black px-14 py-6 rounded-[2.5rem] font-black uppercase tracking-[0.4em] flex items-center gap-5 hover:scale-[1.05] active:scale-[0.95] transition-all shadow-[0_20px_50px_-5px_rgba(var(--primary-rgb),0.4)]"
                      >
                        <Play fill="currentColor" size={28} />
-                       Initialize Feed
+                       Watch Now
                      </button>
                    )}
                    

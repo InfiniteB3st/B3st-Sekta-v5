@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { getSiteSettings } from '../services/supabaseClient';
 
 interface GatekeeperProps {
   children: React.ReactNode;
@@ -9,18 +10,23 @@ export default function Gatekeeper({ children }: GatekeeperProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [key, setKey] = useState('');
   const [error, setError] = useState(false);
-  const MASTER_KEY = 'b3stsekta2699';
+  const [passcode, setPasscode] = useState('b3stsekta2699');
 
   useEffect(() => {
     const saved = localStorage.getItem('sekta_v4_auth');
     if (saved === 'true') {
       setIsAuthenticated(true);
     }
+    
+    // Fetch dynamic passcode
+    getSiteSettings().then(settings => {
+      setPasscode(settings.passcode);
+    });
   }, []);
 
   const handleValidation = (e: React.FormEvent) => {
     e.preventDefault();
-    if (key === MASTER_KEY) {
+    if (key === passcode) {
       localStorage.setItem('sekta_v4_auth', 'true');
       setIsAuthenticated(true);
     } else {
@@ -43,7 +49,7 @@ export default function Gatekeeper({ children }: GatekeeperProps) {
         <div className="flex flex-col items-center gap-2">
           <h1 className="text-7xl font-black italic tracking-tighter flex items-center">
             <span style={{ color: '#FFFFFF' }}>B3ST</span>
-            <span style={{ color: 'var(--primary-color, var(--primary))' }} className="ml-2">SEKTA</span>
+            <span style={{ color: 'var(--primary-color)' }} className="ml-2">SEKTA</span>
           </h1>
         </div>
 

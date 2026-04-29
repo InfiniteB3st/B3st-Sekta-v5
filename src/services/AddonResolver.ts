@@ -106,28 +106,35 @@ export const AddonResolver = {
     try {
       const baseUrl = manifestUrl.replace('/manifest.json', '');
       
-      // We assume Kitsu ID mapping for most anime addons
-      // In a real scenario, we'd have a mapping service
-      const id = `kitsu:${animeId}:${episode}`;
-      const streamUrl = `${baseUrl}/stream/series/${id}.json`;
+      // Stremio resolution protocol logic
+      // Most Anime addons use Kitsu IDs in the format kitsu:{id}:{episode}
+      // Or IMDb IDs if they are movies
+      const id = `kitsu:${animeId}${episode > 0 ? ':' + episode : ''}`;
+      
+      // We probe for series first, then fallback to movie type if needed
+      // Format: [baseUrl]/stream/[type]/[id].json
+      const type = episode > 0 ? 'series' : 'movie';
+      const streamUrl = `${baseUrl}/stream/${type}/${id}.json`;
 
       const response = await fetch(streamUrl);
+      if (!response.ok) throw new Error("Connection Refused");
+      
       const data = await response.json();
 
-      if (!data.streams) return [];
+      if (!data.streams || data.streams.length === 0) return [];
 
       return data.streams.map((stream: any, index: number) => {
-        // Handle direct URLs vs Infohashes
+        // Handle direct URLs vs Infohashes vs external URLs
         let finalUrl = stream.url || stream.externalUrl;
         
-        // If it's a torrent infoHash, we'd normally need a bridge like RealDebrid or Peerflix
-        // For this implementation, we assume the addon provides a proxy/direct link if available
+        // If it's a torrent infoHash, we use a proxy or inform the player
         if (stream.infoHash && !finalUrl) {
+          // Placeholder for real-world p2p-to-hls proxying
           finalUrl = `https://torrent-to-hls-bridge.sekta.io/${stream.infoHash}/${index}/playlist.m3u8`;
         }
 
         return {
-          id: `stremio-${index}`,
+          id: `${manifestUrl}-${index}`,
           source: stream.name || stream.title || 'Stremio Node',
           url: finalUrl,
           quality: stream.title?.match(/\d{3,4}p/)?.[0] || '1080p',
@@ -135,7 +142,7 @@ export const AddonResolver = {
         };
       });
     } catch (err) {
-      console.error('Stremio Resolution Failed:', err);
+      console.error('Stremio Node Latency Audit: MANIFEST_CONNECTION_REFUSED for', manifestUrl);
       return [];
     }
   }

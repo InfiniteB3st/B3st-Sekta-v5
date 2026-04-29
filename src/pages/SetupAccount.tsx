@@ -122,8 +122,8 @@ export default function SetupAccount() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-6 selection:bg-[#ffb100]/30 font-sans">
-      <div className="absolute inset-0 bg-[#ffb100] opacity-[0.02] blur-[150px]" />
+    <div className="min-h-screen bg-black flex items-center justify-center p-6 selection:bg-primary/30 font-sans">
+      <div className="absolute inset-0 bg-primary opacity-[0.02] blur-[150px]" />
       
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
@@ -131,18 +131,18 @@ export default function SetupAccount() {
         className="w-full max-w-2xl bg-[#0d0d0d] border border-white/5 rounded-[4rem] p-12 md:p-20 shadow-3xl relative overflow-hidden"
       >
         <div className="absolute top-10 right-10 opacity-[0.03]">
-           <Sparkles size={200} className="text-[#ffb100]" />
+           <Sparkles size={200} className="text-primary" />
         </div>
 
         <div className="space-y-12 relative z-10">
           <div className="space-y-4">
-             <div className="flex items-center gap-3 text-[#ffb100]">
+             <div className="flex items-center gap-3 text-primary">
                 <ShieldCheck size={24} className="animate-pulse" />
                 <span className="text-[10px] font-black uppercase tracking-[0.5em] italic">Kernel Authorization</span>
              </div>
              <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-white leading-[0.9]">
                Initialize your <br/>
-               <span className="text-[#ffb100]">Node Access</span>
+               <span className="text-primary">Node Access</span>
              </h1>
           </div>
 
@@ -150,7 +150,7 @@ export default function SetupAccount() {
             {/* Avatar Selector */}
             <div className="flex flex-col md:flex-row items-center gap-10">
                <label className="cursor-pointer group relative">
-                  <div className="w-32 h-32 rounded-[2.5rem] bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden transition-all group-hover:border-[#ffb100] shadow-2xl relative">
+                  <div className="w-32 h-32 rounded-[2.5rem] bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden transition-all group-hover:border-primary shadow-2xl relative">
                     {avatarPreview ? (
                       <img src={avatarPreview} className="w-full h-full object-cover" alt="" />
                     ) : (
@@ -159,7 +159,7 @@ export default function SetupAccount() {
                         <span className="text-[8px] font-black text-gray-700 uppercase tracking-widest">Required</span>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-[#ffb100]/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                        <Camera size={24} className="text-black" />
                     </div>
                   </div>
@@ -175,24 +175,24 @@ export default function SetupAccount() {
 
             <div className="grid md:grid-cols-2 gap-6">
               <div className="relative group">
-                <User className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700 group-focus-within:text-[#ffb100] transition-colors" />
+                <User className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700 group-focus-within:text-primary transition-colors" />
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                  className="w-full bg-black/40 border-2 border-white/5 focus:border-[#ffb100] rounded-2xl py-6 pl-16 pr-6 text-white text-sm font-black tracking-widest outline-none transition-all placeholder:text-gray-900"
+                  className="w-full bg-black/40 border-2 border-white/5 focus:border-primary rounded-2xl py-6 pl-16 pr-6 text-white text-sm font-black tracking-widest outline-none transition-all placeholder:text-gray-900"
                   placeholder="USERNAME ALIAS"
                   required
                 />
               </div>
 
               <div className="relative group">
-                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700 group-focus-within:text-[#ffb100] transition-colors" />
+                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700 group-focus-within:text-primary transition-colors" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-black/40 border-2 border-white/5 focus:border-[#ffb100] rounded-2xl py-6 pl-16 pr-6 text-white text-sm font-black tracking-widest outline-none transition-all placeholder:text-gray-900"
+                  className="w-full bg-black/40 border-2 border-white/5 focus:border-primary rounded-2xl py-6 pl-16 pr-6 text-white text-sm font-black tracking-widest outline-none transition-all placeholder:text-gray-900"
                   placeholder="SECRET PASSCODE"
                   required
                 />
@@ -208,7 +208,7 @@ export default function SetupAccount() {
             <button
               disabled={isSubmitting}
               type="submit"
-              className="w-full h-24 bg-[#ffb100] text-black rounded-3xl font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-[#ffb100]/20"
+              className="w-full h-24 bg-primary text-black rounded-3xl font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-primary/20"
             >
               {isSubmitting ? <Loader2 className="w-8 h-8 animate-spin" /> : <>START SYNC <ArrowRight size={24} /></>}
             </button>

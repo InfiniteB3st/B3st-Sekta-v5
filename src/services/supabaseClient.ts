@@ -181,6 +181,49 @@ export const syncUserProfile = async (user: { id: string }) => {
   return profile as Profile | null;
 };
 
+// SITE CONFIGURATION PROTOCOL
+export interface SiteSettings {
+  passcode: string;
+  help_center_text: string;
+  terms_text: string;
+  privacy_text: string;
+}
+
+const DEFAULT_SETTINGS: SiteSettings = {
+  passcode: 'b3stsekta2699',
+  help_center_text: 'Welcome to the B3st Sekta Help Center. We are dedicated to providing the best anime experience. If you have issues with playback, account synchronization, or extensions, please check our discord or node status.',
+  terms_text: 'By using B3st Sekta, you agree to our fair-use policy. We do not host any files on our servers. All content is indexed from 3rd party providers via your configured extensions.',
+  privacy_text: 'Your privacy is our priority. No logs are kept on our backend regarding your streaming history unless you are logged in for synchronization purposes.'
+};
+
+export const getSiteSettings = async (): Promise<SiteSettings> => {
+  const client = getClient();
+  if (!client) return DEFAULT_SETTINGS;
+  
+  try {
+    const { data, error } = await client
+      .from('site_settings')
+      .select('*')
+      .single();
+      
+    if (error || !data) return DEFAULT_SETTINGS;
+    return data as SiteSettings;
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+};
+
+export const updateSiteSettings = async (settings: Partial<SiteSettings>) => {
+  const client = getClient();
+  if (!client) throw new Error("Supabase node unreachable");
+  
+  const { error } = await client
+    .from('site_settings')
+    .upsert({ id: 1, ...settings }, { onConflict: 'id' });
+    
+  if (error) throw error;
+};
+
 export const syncProfile = async (payload: Partial<Profile> & { id: string }) => {
   const client = getClient();
   if (!client) return;

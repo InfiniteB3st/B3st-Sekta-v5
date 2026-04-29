@@ -45,7 +45,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, currentEpiso
             <select 
               value={activeRange}
               onChange={(e) => setActiveRange(Number(e.target.value))}
-              className="appearance-none bg-surface border-2 border-white/5 rounded-2xl py-4 pl-8 pr-16 text-[10px] font-black uppercase tracking-widest text-[#ffb100] outline-none cursor-pointer focus:border-primary transition-all hover:bg-white/5"
+              className="appearance-none bg-surface border-2 border-white/5 rounded-2xl py-4 pl-8 pr-16 text-[10px] font-black uppercase tracking-widest text-primary outline-none cursor-pointer focus:border-primary transition-all hover:bg-white/5"
             >
               {ranges.map(r => (
                 <option key={r} value={r}>

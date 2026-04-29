@@ -394,7 +394,7 @@ export default function Filter() {
                   onClick={handleApply}
                   className="flex-[2] bg-primary text-black py-8 rounded-[2.5rem] font-black uppercase tracking-[0.2em] italic flex items-center justify-center gap-6 hover:scale-[1.02] shadow-[0_20px_50px_rgba(255,177,0,0.2)] transition-all active:scale-95"
                 >
-                  Authorize System Sync
+                  Filter
                   <ChevronRight size={24} />
                 </button>
               </div>

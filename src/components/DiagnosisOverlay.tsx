@@ -197,7 +197,7 @@ export const DiagnosisOverlay: React.FC<DiagnosisOverlayProps> = ({ isOpen, onCl
               <h1 className="text-6xl font-black italic tracking-tighter text-white uppercase leading-none">Diagnostic<br/><span className="text-primary font-bold">Command Center</span></h1>
               <div className="flex flex-wrap gap-5 mt-8">
                 <p className="text-primary font-black uppercase text-[10px] tracking-[0.5em] flex items-center gap-3 border border-primary/20 px-4 py-1.5 rounded-full bg-primary/5">
-                  <span className="w-2 h-2 bg-primary animate-pulse rounded-full shadow-[0_0_10px_#ffb100]" />
+                  <span className="w-2 h-2 bg-primary animate-pulse rounded-full shadow-[0_0_10px_var(--primary)]" />
                   KERNEL_STATUS: OPTIMAL
                 </p>
                 <p className="text-white/30 font-black uppercase text-[10px] tracking-[0.5em] flex items-center gap-3 border border-white/5 px-4 py-1.5 rounded-full bg-white/5">

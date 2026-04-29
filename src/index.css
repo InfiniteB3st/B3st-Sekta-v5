@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --primary: var(--primary-color, #ffb11b);
-  --primary-rgb: var(--primary-color-rgb, 255, 177, 27);
+  --primary: var(--primary-color, #ffb100);
+  --primary-rgb: var(--primary-color-rgb, 255, 177, 0);
 }
 
 :root {
-  --primary-color: #ffb11b;
-  --primary-color-rgb: 255, 177, 27;
+  --primary-color: #ffb100;
+  --primary-color-rgb: 255, 177, 0;
 }
