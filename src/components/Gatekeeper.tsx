@@ -43,7 +43,7 @@ export default function Gatekeeper({ children }: GatekeeperProps) {
         <div className="flex flex-col items-center gap-2">
           <h1 className="text-7xl font-black italic tracking-tighter flex items-center">
             <span style={{ color: '#FFFFFF' }}>B3ST</span>
-            <span style={{ color: 'var(--primary)' }} className="ml-2">SEKTA</span>
+            <span style={{ color: 'var(--primary-color, var(--primary))' }} className="ml-2">SEKTA</span>
           </h1>
         </div>
 

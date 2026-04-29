@@ -93,13 +93,33 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   useEffect(() => {
     if (activeAddon) {
       setLoadingLinks(true);
-      AddonResolver.scrapeLinks(activeAddon, animeId, currentEpisode).then(res => {
-        setLinks(res);
-        if (res.length > 0) setActiveLink(res[0]);
-        setLoadingLinks(false);
-      });
+      
+      const fetchAllLinks = async () => {
+        try {
+          // In a "Sovereign" implementation, we probe ALL enabled nodes simultaneously
+          const allLinkPromises = addons.map(addon => 
+            AddonResolver.scrapeLinks(addon.id, animeId, currentEpisode)
+          );
+          
+          const results = await Promise.all(allLinkPromises);
+          const aggregatedLinks = results.flat();
+          
+          setLinks(aggregatedLinks);
+          if (aggregatedLinks.length > 0) {
+            // Prefer the active addon's link if available, otherwise first one
+            const activeNodeLink = aggregatedLinks.find(l => l.source.includes(activeAddon));
+            setActiveLink(activeNodeLink || aggregatedLinks[0]);
+          }
+        } catch (err) {
+          console.error("Multi-Node Scraping Failure:", err);
+        } finally {
+          setLoadingLinks(false);
+        }
+      };
+
+      fetchAllLinks();
     }
-  }, [activeAddon, animeId, currentEpisode]);
+  }, [activeAddon, addons, animeId, currentEpisode]);
 
   const toggleFullscreen = () => {
     if (!containerRef.current) return;
@@ -176,6 +196,19 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           onEnded={handleEnded}
           className="w-full h-full"
         />
+
+        {/* FALLBACK: RE-SYNCING NODE ANIMATION */}
+        <AnimatePresence>
+          {!loadingLinks && !activeLink && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-black flex flex-col items-center justify-center gap-6 z-20">
+               <div className="w-24 h-24 border-4 border-primary border-t-transparent rounded-full animate-spin shadow-[0_0_50px_rgba(var(--primary-rgb),0.2)]" />
+               <div className="text-center space-y-2">
+                 <h4 className="text-xl font-black italic uppercase text-primary">Re-syncing Node</h4>
+                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-700">All configured streams reported OFFLINE. Purging cache...</p>
+               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* CLICK LAYER */}
         <div className="absolute inset-0 z-30" onClick={togglePlay} />

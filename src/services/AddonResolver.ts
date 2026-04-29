@@ -32,32 +32,36 @@ export const AddonResolver = {
 
     if (userId === 'guest') {
       const localAddons = JSON.parse(localStorage.getItem('sekta_addons') || '[]');
-      if (localAddons.length === 0) {
-        return [{ id: 'hianime-core', name: 'HiAnime Core', description: 'Stable 1080p Mirror', enabled: true }];
-      }
-      return localAddons.map((item: any) => ({
-        ...item,
-        id: item.addon_id || item.id,
-        name: ADDON_MAP[item.addon_id]?.name || item.name || item.addon_id,
-        description: ADDON_MAP[item.addon_id]?.description || item.description || 'Custom Extension Source'
+      const results = localAddons.filter((a: any) => a.enabled).map((item: any) => ({
+        id: item.manifest_url || item.id,
+        name: item.name || 'Custom Node',
+        description: item.description || 'Stremio Extension',
+        enabled: true
       }));
+
+      // Include built-in default
+      results.push({ id: 'hianime-core', name: 'HiAnime Core', description: 'Stable 1080p Mirror', enabled: true });
+      return results;
     }
 
     const supabase = getSupabase();
-    const { data, error } = await supabase
+    const { data: customData } = await supabase
       .from('user_addons')
       .select('*')
       .eq('user_id', userId)
       .eq('enabled', true);
 
-    if (error) return [];
-
-    return (data || []).map(item => ({
-      id: item.addon_id,
-      name: item.name || ADDON_MAP[item.addon_id]?.name || item.addon_id,
-      description: item.description || ADDON_MAP[item.addon_id]?.description || 'Custom Extension Source',
-      enabled: item.enabled
+    const results = (customData || []).map(item => ({
+      id: item.manifest_url || item.addon_id,
+      name: item.name || 'Custom Node',
+      description: item.description || 'Stremio Extension',
+      enabled: true
     }));
+
+    // Default node
+    results.push({ id: 'hianime-core', name: 'HiAnime Core', description: 'Stable 1080p Mirror', enabled: true });
+    
+    return results;
   },
 
   /**

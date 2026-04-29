@@ -27,7 +27,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Link to="/home" className="shrink-0 flex items-center gap-2">
                <h1 className="text-3xl font-black italic tracking-tighter flex items-center">
                  <span style={{ color: '#FFFFFF' }}>B3ST</span>
-                 <span style={{ color: 'var(--primary)' }} className="ml-1">SEKTA</span>
+                 <span style={{ color: 'var(--primary-color, var(--primary))' }} className="ml-1">SEKTA</span>
                </h1>
             </Link>
 
@@ -130,7 +130,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <Link to="/home" className="shrink-0 scale-125 origin-left inline-block">
                  <h1 className="text-3xl font-black italic tracking-tighter flex items-center">
                    <span style={{ color: '#FFFFFF' }}>B3ST</span>
-                   <span style={{ color: 'var(--primary)' }} className="ml-1">SEKTA</span>
+                   <span style={{ color: 'var(--primary-color, var(--primary))' }} className="ml-1">SEKTA</span>
                  </h1>
               </Link>
               <p className="text-gray-500 text-sm font-medium leading-relaxed max-w-md italic">

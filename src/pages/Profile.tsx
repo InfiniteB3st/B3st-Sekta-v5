@@ -5,7 +5,7 @@ import {
   User, Palette, LogOut, Save, Camera, ShieldCheck, Mail, Database, 
   RefreshCw, Loader2, Lock, Chrome, Link as LinkIcon, AlertTriangle,
   History, Eye, Clock, Settings as SettingsIcon, Globe, Monitor, Zap,
-  SkipForward, Volume2, Languages, CheckCircle2
+  SkipForward, Volume2, Languages, CheckCircle2, Plus, Globe2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -98,10 +98,152 @@ export default function Profile() {
     }
   };
 
+  useEffect(() => {
+    const savedAccent = localStorage.getItem('sekta_accent');
+    if (savedAccent) {
+      document.documentElement.style.setProperty('--primary-color', savedAccent);
+      const r = parseInt(savedAccent.slice(1, 3), 16);
+      const g = parseInt(savedAccent.slice(3, 5), 16);
+      const b = parseInt(savedAccent.slice(5, 7), 16);
+      document.documentElement.style.setProperty('--primary-color-rgb', `${r}, ${g}, ${b}`);
+    }
+  }, []);
+
+  const [addons, setAddons] = useState<any[]>([]);
+  const [newAddonUrl, setNewAddonUrl] = useState('');
+  const [isAddingAddon, setIsAddingAddon] = useState(false);
+
+  useEffect(() => {
+    loadAddons();
+  }, [user]);
+
+  const loadAddons = async () => {
+    if (user) {
+      const { data } = await getSupabase().from('user_addons').select('*').eq('user_id', user.id);
+      if (data) setAddons(data);
+    } else {
+      const local = JSON.parse(localStorage.getItem('sekta_addons') || '[]');
+      setAddons(local);
+    }
+  };
+
+  const handleAddAddon = async () => {
+    if (!newAddonUrl) return;
+    setIsAddingAddon(true);
+    try {
+      const response = await fetch(newAddonUrl);
+      const manifest = await response.json();
+      
+      const newAddon = {
+        id: manifest.id || Math.random().toString(36).substr(2, 9),
+        name: manifest.name,
+        description: manifest.description,
+        manifest_url: newAddonUrl,
+        enabled: true,
+        user_id: user?.id || 'guest'
+      };
+
+      if (user) {
+        await getSupabase().from('user_addons').upsert({
+          user_id: user.id,
+          addon_id: newAddon.id,
+          name: newAddon.name,
+          description: newAddon.description,
+          manifest_url: newAddonUrl,
+          enabled: true
+        });
+      } else {
+        const local = JSON.parse(localStorage.getItem('sekta_addons') || '[]');
+        localStorage.setItem('sekta_addons', JSON.stringify([...local, newAddon]));
+      }
+
+      setNewAddonUrl('');
+      loadAddons();
+      setMessage({ type: 'success', text: 'Stremio Add-on Registered.' });
+    } catch (err: any) {
+      setMessage({ type: 'error', text: 'Failed to fetch manifest. MANIFEST_CONNECTION_REFUSED' });
+    } finally {
+      setIsAddingAddon(false);
+    }
+  };
+
+  const toggleAddon = async (id: string, current: boolean) => {
+    if (user) {
+      await getSupabase().from('user_addons').update({ enabled: !current }).eq('user_id', user.id).eq('addon_id', id);
+    } else {
+      const local = JSON.parse(localStorage.getItem('sekta_addons') || '[]');
+      const updated = local.map((a: any) => a.id === id ? { ...a, enabled: !current } : a);
+      localStorage.setItem('sekta_addons', JSON.stringify(updated));
+    }
+    loadAddons();
+  };
+
+  const AddonManagerView = () => (
+    <div className="space-y-16">
+      <div className="flex items-center justify-between">
+        <h2 className="text-4xl font-black text-white italic uppercase">Stremio Protocol</h2>
+        <div className="flex items-center gap-4 text-[10px] font-black uppercase text-gray-700 tracking-widest">
+           <Monitor size={16} /> Node Status: <span className="text-primary">Online</span>
+        </div>
+      </div>
+
+      <div className="bg-[#0f0f0f] border-2 border-white/5 rounded-[3.5rem] p-10 space-y-10">
+         <div className="space-y-4">
+            <label className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-700 ml-6">Manifest URL Handshake</label>
+            <div className="flex gap-4">
+               <input 
+                 value={newAddonUrl}
+                 onChange={e => setNewAddonUrl(e.target.value)}
+                 placeholder="https://.../manifest.json"
+                 className="flex-1 bg-black border-2 border-white/5 rounded-3xl p-6 text-white font-black outline-none focus:border-primary transition-all" 
+               />
+               <button 
+                 onClick={handleAddAddon}
+                 disabled={isAddingAddon}
+                 className="bg-primary px-10 rounded-3xl text-black font-black uppercase text-[10px] tracking-widest transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+               >
+                 {isAddingAddon ? <Loader2 className="animate-spin" /> : 'Register'}
+               </button>
+            </div>
+         </div>
+
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {addons.map(addon => (
+              <div key={addon.id || addon.addon_id} className="bg-white/3 border border-white/5 p-8 rounded-[2.5rem] flex items-center justify-between group transition-all hover:border-primary/20">
+                 <div className="flex items-center gap-6">
+                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                       <Zap size={24} />
+                    </div>
+                    <div className="space-y-1">
+                       <h4 className="text-white font-black uppercase text-sm">{addon.name}</h4>
+                       <p className="text-[9px] font-black uppercase text-gray-700 tracking-widest line-clamp-1">{addon.description}</p>
+                    </div>
+                 </div>
+                 <button 
+                   onClick={() => toggleAddon(addon.id || addon.addon_id, addon.enabled)}
+                   className={cn("w-14 h-8 rounded-full relative transition-all", addon.enabled ? "bg-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]" : "bg-white/5")}
+                 >
+                    <div className={cn("absolute top-1 w-6 h-6 rounded-full transition-all", addon.enabled ? "right-1 bg-black" : "left-1 bg-gray-700")} />
+                 </button>
+              </div>
+            ))}
+         </div>
+      </div>
+      
+      <div className="p-12 bg-primary/5 border border-primary/10 rounded-[3rem] flex items-center gap-8">
+         <AlertTriangle className="text-primary shrink-0" size={32} />
+         <p className="text-[10px] font-black uppercase tracking-wider leading-relaxed text-primary/70">
+           Stremio add-ons are external nodes. Ensure manifest URLs are from trusted source domains. Failed manifests will be reported in site fabric diagnostics.
+         </p>
+      </div>
+    </div>
+  );
+
   const tabs = [
     { id: 'account', icon: User, label: 'Account' },
     { id: 'history', icon: History, label: 'History' },
     { id: 'watchlist', icon: Database, label: 'Watchlist' },
+    { id: 'addons', icon: Globe2, label: 'Add-ons' },
     { id: 'settings', icon: SettingsIcon, label: 'Settings' },
   ];
 
@@ -268,6 +410,10 @@ export default function Profile() {
                        </div>
                      )}
 
+                     {activeTab === 'addons' && (
+                       <AddonManagerView />
+                     )}
+
                      {activeTab === 'settings' && (
                        <div className="space-y-16">
                           <div className="space-y-10">
@@ -303,15 +449,24 @@ export default function Profile() {
                             </div>
                           </div>
 
-                          <div className="space-y-10">
+                           <div className="space-y-10">
                             <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Interface Prefs (Global Accent)</h3>
                             <div className="grid grid-cols-4 md:grid-cols-7 gap-6">
                                {ACCENT_COLORS.map(c => (
                                  <button key={c} onClick={() => {
-                                   document.documentElement.style.setProperty('--primary', c);
+                                   document.documentElement.style.setProperty('--primary-color', c);
+                                   // Also calculate RGB for translucent effects
+                                   const r = parseInt(c.slice(1, 3), 16);
+                                   const g = parseInt(c.slice(3, 5), 16);
+                                   const b = parseInt(c.slice(5, 7), 16);
+                                   document.documentElement.style.setProperty('--primary-color-rgb', `${r}, ${g}, ${b}`);
+                                   
                                    localStorage.setItem('sekta_accent', c);
+                                   if (user) {
+                                     getSupabase().from('profiles').update({ accent_color: c }).eq('id', user.id);
+                                   }
                                    refreshProfile();
-                                 }} className={cn("w-full aspect-square rounded-2xl shadow-2xl border-4 transition-all", profile?.accent_color === c ? "border-white scale-110" : "border-transparent opacity-40 hover:opacity-100 hover:scale-105")} style={{ backgroundColor: c }} />
+                                 }} className={cn("w-full aspect-square rounded-2xl shadow-2xl border-4 transition-all", (profile?.accent_color === c || localStorage.getItem('sekta_accent') === c) ? "border-white scale-110" : "border-transparent opacity-40 hover:opacity-100 hover:scale-105")} style={{ backgroundColor: c }} />
                                ))}
                             </div>
                           </div>
