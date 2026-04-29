@@ -62,9 +62,9 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
           </div>
 
           <div className="space-y-6">
-            <div className="flex items-center justify-center gap-3">
-               <span className="text-4xl font-black italic text-white uppercase tracking-tighter">B3st</span>
-               <span className="text-4xl font-black italic text-primary uppercase tracking-tighter">Sekta</span>
+            <div className="flex items-center justify-center gap-2">
+               <span style={{ color: '#FFFFFF' }} className="text-4xl font-black italic uppercase tracking-tighter">B3st</span>
+               <span style={{ color: 'var(--primary)' }} className="text-4xl font-black italic uppercase tracking-tighter">Sekta</span>
             </div>
             <h2 className="text-xl font-bold text-gray-400 uppercase tracking-[0.2em]">System Diagnostics Required</h2>
             <p className="text-gray-600 max-w-sm mx-auto text-[11px] font-medium leading-relaxed uppercase tracking-wider">

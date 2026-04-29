@@ -41,9 +41,9 @@ export default function Gatekeeper({ children }: GatekeeperProps) {
       >
         {/* Simplified Logo */}
         <div className="flex flex-col items-center gap-2">
-          <h1 className="logo-text">
-            <span className="logo-b3st text-7xl">B3ST</span>
-            <span className="logo-sekta text-7xl">SEKTA</span>
+          <h1 className="text-7xl font-black italic tracking-tighter flex items-center">
+            <span style={{ color: '#FFFFFF' }}>B3ST</span>
+            <span style={{ color: 'var(--primary)' }} className="ml-2">SEKTA</span>
           </h1>
         </div>
 

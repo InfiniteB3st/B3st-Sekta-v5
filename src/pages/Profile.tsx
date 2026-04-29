@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   User, Palette, LogOut, Save, Camera, ShieldCheck, Mail, Database, 
@@ -21,6 +22,13 @@ const ACCENT_COLORS = [
 export default function Profile() {
   const { user, profile, signOut, refreshProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('account');
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab) setActiveTab(tab);
+  }, [location]);
   const [newUsername, setNewUsername] = useState(profile?.username || '');
   const [newEmail, setNewEmail] = useState(user?.email || '');
   const [newPassword, setNewPassword] = useState('');

@@ -137,7 +137,7 @@ export default function Home() {
               <Clock size={32} className="text-[#ffb100] animate-pulse" />
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-8">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-8">
               {continueWatching.map((item) => (
                 <Link 
                   key={item.anime_id} 
@@ -173,7 +173,7 @@ export default function Home() {
                 </Link>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-8">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] md:grid-cols-4 xl:grid-cols-5 gap-8">
                 {loading ? (
                   Array.from({ length: 15 }).map((_, i) => (
                     <div key={i} className="aspect-[2.7/4] bg-[#0a0a0a] animate-pulse rounded-[2.5rem]" />

@@ -2,12 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>B3st Sekta</title>
   </head>
   <body>
     <div id="root"></div>
+    
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      (function() {
+        window._sekta_errors = window._sekta_errors || [];
+        
+        // KERNEL PERSISTENCE: window.getSystemStats
+        window.getSystemStats = () => {
+          return {
+            url: window.location.href,
+            origin: window.location.origin,
+            tokens: Object.keys(localStorage).filter(k => k.includes('sb-')),
+            errors: window._sekta_errors.slice(-5),
+            timestamp: new Date().toISOString()
+          };
+        };
+      })();
+    </script>
   </body>
 </html>
-
