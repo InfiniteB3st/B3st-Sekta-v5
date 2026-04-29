@@ -11,7 +11,6 @@ import Home from './pages/Home';
 import LandingPage from './pages/LandingPage';
 import Filter from './pages/Filter';
 import Profile from './pages/Profile';
-import Settings from './pages/Settings';
 import Login from './pages/Login';
 import SetupAccount from './pages/SetupAccount';
 import AddonManager from './pages/AddonManager';
@@ -295,7 +294,7 @@ function AppContent() {
               <Route path="/watch/:id" element={<Watch />} />
               
               <Route path="/profile" element={<Profile />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/settings" element={<Navigate to="/profile" replace />} />
               <Route path="/addons" element={<AddonManager />} />
               <Route path="/admin" element={<AdminPanel />} />
               

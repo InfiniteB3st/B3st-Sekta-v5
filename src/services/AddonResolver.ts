@@ -64,7 +64,13 @@ export const AddonResolver = {
    * Scrapes multiple links from an Add-on and performs a health check (Ping).
    */
   scrapeLinks: async (addonId: string, animeId: number, episode: number): Promise<StreamLink[]> => {
-    // Simulated multi-link response from an add-on
+    // If it's a Stremio manifest URL (e.g. starting with http and containing /manifest.json)
+    // we use the Stremio resolution protocol
+    if (addonId.includes('/manifest.json')) {
+      return AddonResolver.resolveStremioStream(addonId, animeId, episode);
+    }
+
+    // Default simulated response for built-in test nodes
     const sources = ['GogoServer', 'CloudStream', 'MegaDrive', 'VidStream', 'DirectEdge'];
     const qualities = ['1080p', '720p', '480p'];
     
@@ -87,5 +93,46 @@ export const AddonResolver = {
     }));
 
     return verifiedLinks.filter(l => l.status === 'online');
+  },
+
+  /**
+   * SYNAPTIC RESOLVER: Converts a Stremio Manifest + Metadata into playable streams.
+   */
+  resolveStremioStream: async (manifestUrl: string, animeId: number, episode: number): Promise<StreamLink[]> => {
+    try {
+      const baseUrl = manifestUrl.replace('/manifest.json', '');
+      
+      // We assume Kitsu ID mapping for most anime addons
+      // In a real scenario, we'd have a mapping service
+      const id = `kitsu:${animeId}:${episode}`;
+      const streamUrl = `${baseUrl}/stream/series/${id}.json`;
+
+      const response = await fetch(streamUrl);
+      const data = await response.json();
+
+      if (!data.streams) return [];
+
+      return data.streams.map((stream: any, index: number) => {
+        // Handle direct URLs vs Infohashes
+        let finalUrl = stream.url || stream.externalUrl;
+        
+        // If it's a torrent infoHash, we'd normally need a bridge like RealDebrid or Peerflix
+        // For this implementation, we assume the addon provides a proxy/direct link if available
+        if (stream.infoHash && !finalUrl) {
+          finalUrl = `https://torrent-to-hls-bridge.sekta.io/${stream.infoHash}/${index}/playlist.m3u8`;
+        }
+
+        return {
+          id: `stremio-${index}`,
+          source: stream.name || stream.title || 'Stremio Node',
+          url: finalUrl,
+          quality: stream.title?.match(/\d{3,4}p/)?.[0] || '1080p',
+          status: 'online'
+        };
+      });
+    } catch (err) {
+      console.error('Stremio Resolution Failed:', err);
+      return [];
+    }
   }
 };

@@ -83,13 +83,21 @@ export const jikanService = {
     try {
       const params = new URLSearchParams();
       if (query) params.append('q', query);
-      params.append('order_by', options.order_by || 'popularity');
       
+      // Default order by popularity if not specified
+      params.append('order_by', options.order_by || 'popularity');
+      params.append('sort', options.sort || 'desc');
+      
+      if (options.type) params.append('type', options.type);
       if (options.genres) params.append('genres', options.genres);
       if (options.status) params.append('status', options.status);
       if (options.rating) params.append('rating', options.rating);
-      if (options.score) params.append('min_score', options.score);
+      if (options.min_score) params.append('min_score', options.min_score);
+      if (options.max_score) params.append('max_score', options.max_score);
       if (options.start_date) params.append('start_date', options.start_date);
+      if (options.season) params.append('season', options.season);
+      if (options.year) params.append('year', options.year);
+      if (options.sfw) params.append('sfw', 'true');
       
       const data = await fetchWithRetry(`${JIKAN_BASE_URL}/anime?${params.toString()}`);
       return data?.data || [];

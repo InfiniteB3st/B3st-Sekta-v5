@@ -4,6 +4,7 @@ export interface Profile {
   email?: string;
   avatar_url?: string;
   accent_color?: string;
+  is_public?: boolean;
   is_admin?: boolean;
   updated_at?: string;
   created_at?: string;

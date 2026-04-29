@@ -7,18 +7,29 @@ import { AnimeCard } from '../components/AnimeCard';
 import { cn } from '../lib/utils';
 
 const GENRES = [
-  { id: 1, name: 'Action' }, { id: 2, name: 'Adventure' }, { id: 4, name: 'Comedy' },
-  { id: 8, name: 'Drama' }, { id: 10, name: 'Fantasy' }, { id: 22, name: 'Romance' },
-  { id: 24, name: 'Sci-Fi' }, { id: 36, name: 'Slice of Life' }, { id: 7, name: 'Mystery' },
-  { id: 14, name: 'Horror' }, { id: 37, name: 'Supernatural' }, { id: 41, name: 'Suspense' },
-  { id: 19, name: 'Music' }, { id: 18, name: 'Mecha' }
+  { id: 1, name: 'Action' }, { id: 2, name: 'Adventure' }, { id: 5, name: 'Avant Garde' },
+  { id: 46, name: 'Award Winning' }, { id: 4, name: 'Comedy' }, { id: 8, name: 'Drama' },
+  { id: 10, name: 'Fantasy' }, { id: 14, name: 'Horror' }, { id: 7, name: 'Mystery' },
+  { id: 22, name: 'Romance' }, { id: 24, name: 'Sci-Fi' }, { id: 36, name: 'Slice of Life' },
+  { id: 30, name: 'Sports' }, { id: 37, name: 'Supernatural' }, { id: 41, name: 'Suspense' },
+  { id: 62, name: 'Iyashikei' }, { id: 63, name: 'Romantic Subtext' }, { id: 73, name: 'Reincarnation' },
+  { id: 61, name: 'Isekai' }, { id: 40, name: 'Psychological' }, { id: 38, name: 'Military' },
+  { id: 19, name: 'Music' }, { id: 18, name: 'Mecha' }, { id: 21, name: 'Samurai' },
+  { id: 39, name: 'Police' }, { id: 54, name: 'Detective' }, { id: 17, name: 'Martial Arts' },
+  { id: 23, name: 'School' }, { id: 27, name: 'Shounen' }, { id: 28, name: 'Shoujo' },
+  { id: 42, name: 'Seinen' }, { id: 43, name: 'Josei' }, { id: 11, name: 'Game' },
+  { id: 25, name: 'Space' }, { id: 31, name: 'Super Power' }, { id: 32, name: 'Vampire' },
+  { id: 35, name: 'Harem' }, { id: 74, name: 'Reverse Harem' }, { id: 20, name: 'Parody' },
+  { id: 45, name: 'Gourmet' }, { id: 49, name: 'Workplace' }, { id: 65, name: 'Magical Girl' },
+  { id: 51, name: 'Anthropomorphic' }, { id: 57, name: 'Gore' }, { id: 69, name: 'Organized Crime' }
 ];
 
 const ORDER_BY = [
-  { value: 'popularity', name: 'Popularity' },
+  { value: 'popularity', name: 'Most Popular' },
   { value: 'rank', name: 'Rank' },
-  { value: 'score', name: 'Score' },
-  { value: 'title', name: 'Title' }
+  { value: 'score', name: 'Highest Score' },
+  { value: 'start_date', name: 'Recently Added' },
+  { value: 'title', name: 'Name A-Z' }
 ];
 
 const STATUSES = [
@@ -28,9 +39,34 @@ const STATUSES = [
 ];
 
 const RATINGS = [
+  { value: 'g', name: 'G' },
+  { value: 'pg', name: 'PG' },
   { value: 'pg13', name: 'PG-13' },
   { value: 'r17', name: 'R-17+' },
-  { value: 'r', name: 'R' }
+  { value: 'r', name: 'R' },
+  { value: 'rx', name: 'Rx' }
+];
+
+const TYPES = [
+  { value: 'tv', name: 'TV' },
+  { value: 'movie', name: 'Movie' },
+  { value: 'ova', name: 'OVA' },
+  { value: 'ona', name: 'ONA' },
+  { value: 'special', name: 'Special' },
+  { value: 'music', name: 'Music' }
+];
+
+const SEASONS = [
+  { value: 'summer', name: 'Summer' },
+  { value: 'winter', name: 'Winter' },
+  { value: 'spring', name: 'Spring' },
+  { value: 'fall', name: 'Fall' }
+];
+
+const LANGUAGES = [
+  { value: 'sub', name: 'Subbed' },
+  { value: 'dub', name: 'Dubbed' },
+  { value: 'raw', name: 'Raw' }
 ];
 
 export default function Filter() {
@@ -44,12 +80,15 @@ export default function Filter() {
   const [selectedGenres, setSelectedGenres] = useState<number[]>(
     searchParams.get('genres')?.split(',').map(Number).filter(n => !isNaN(n)) || []
   );
-  const [status, setStatus] = useState<string[]>(
-    searchParams.get('status')?.split(',').filter(Boolean) || []
-  );
+  const [status, setStatus] = useState(searchParams.get('status') || '');
   const [rating, setRating] = useState(searchParams.get('rating') || '');
+  const [type, setType] = useState(searchParams.get('type') || '');
+  const [language, setLanguage] = useState(searchParams.get('language') || '');
+  const [season, setSeason] = useState(searchParams.get('season') || '');
   const [year, setYear] = useState(searchParams.get('year') || '');
   const [orderBy, setOrderBy] = useState(searchParams.get('order_by') || 'popularity');
+  const [minScore, setMinScore] = useState(Number(searchParams.get('min_score')) || 0.0);
+  const [maxScore, setMaxScore] = useState(Number(searchParams.get('max_score')) || 10.0);
 
   useEffect(() => {
     loadResults();
@@ -62,8 +101,12 @@ export default function Filter() {
         genres: searchParams.get('genres'),
         status: searchParams.get('status'),
         rating: searchParams.get('rating'),
+        type: searchParams.get('type'),
+        season: searchParams.get('season'),
+        year: searchParams.get('year'),
+        min_score: searchParams.get('min_score'),
+        max_score: searchParams.get('max_score'),
         order_by: searchParams.get('order_by'),
-        start_date: searchParams.get('year') ? `${searchParams.get('year')}-01-01` : undefined
       };
       const data = await jikanService.searchAnime(searchParams.get('q') || '', options);
       setResults(data);
@@ -80,18 +123,20 @@ export default function Filter() {
     );
   };
 
-  const toggleStatus = (val: string) => {
-    setStatus(prev => prev.includes(val) ? prev.filter(s => s !== val) : [...prev, val]);
-  };
-
   const handleApply = () => {
     const params: any = {};
     if (search) params.q = search;
     if (selectedGenres.length > 0) params.genres = selectedGenres.join(',');
-    if (status.length > 0) params.status = status.join(',');
+    if (status) params.status = status;
     if (rating) params.rating = rating;
+    if (type) params.type = type;
+    if (language) params.language = language;
     if (year) params.year = year;
+    if (season) params.season = season;
     if (orderBy) params.order_by = orderBy;
+    if (minScore > 0) params.min_score = minScore.toString();
+    if (maxScore < 10) params.max_score = maxScore.toString();
+    
     setSearchParams(params);
     setShowFilters(false);
   };
@@ -177,33 +222,108 @@ export default function Filter() {
                   />
                 </div>
 
-                {/* Subtitle/Status */}
+                {/* Score Slider */}
                 <div className="space-y-6">
                    <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] text-gray-600">
-                    <Activity size={14} className="text-primary" /> Transmission Status
+                    <Star size={14} className="text-primary" /> Score Differential ({minScore.toFixed(1)} - {maxScore.toFixed(1)})
                   </label>
-                  <div className="flex flex-wrap gap-3">
-                    {STATUSES.map(s => (
-                      <button 
-                        key={s.value} onClick={() => toggleStatus(s.value)}
-                        className={cn("px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all", status.includes(s.value) ? 'bg-primary border-primary text-black' : 'bg-white/3 border-white/5 text-gray-600 hover:border-white/20')}
-                      >
-                        {s.name}
-                      </button>
-                    ))}
+                  <div className="relative h-12 flex items-center px-2">
+                    <div className="absolute w-full h-1.5 bg-white/5 rounded-full" />
+                    <div 
+                      className="absolute h-1.5 bg-primary rounded-full"
+                      style={{ 
+                        left: `${(minScore / 10) * 100}%`, 
+                        right: `${100 - (maxScore / 10) * 100}%` 
+                      }}
+                    />
+                    <input 
+                      type="range" min="0" max="10" step="0.1"
+                      value={minScore} 
+                      onChange={(e) => setMinScore(Math.min(Number(e.target.value), maxScore - 0.1))}
+                      className="absolute w-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-4 [&::-webkit-slider-thumb]:border-primary"
+                    />
+                    <input 
+                      type="range" min="0" max="10" step="0.1"
+                      value={maxScore} 
+                      onChange={(e) => setMaxScore(Math.max(Number(e.target.value), minScore + 0.1))}
+                      className="absolute w-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-4 [&::-webkit-slider-thumb]:border-primary"
+                    />
+                  </div>
+                </div>
+
+                {/* Categories Row */}
+                <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {/* Type */}
+                  <div className="space-y-4">
+                    <label className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-gray-600">Format</label>
+                    <div className="flex flex-wrap gap-2">
+                      {TYPES.map(t => (
+                        <button 
+                          key={t.value} onClick={() => setType(type === t.value ? '' : t.value)}
+                          className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider border transition-all", type === t.value ? 'bg-primary border-primary text-black' : 'bg-white/3 border-white/5 text-gray-600')}
+                        >
+                          {t.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Status */}
+                  <div className="space-y-4">
+                    <label className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-gray-600">Status</label>
+                    <div className="flex flex-wrap gap-2">
+                      {STATUSES.map(s => (
+                        <button 
+                          key={s.value} onClick={() => setStatus(status === s.value ? '' : s.value)}
+                          className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider border transition-all", status === s.value ? 'bg-primary border-primary text-black' : 'bg-white/3 border-white/5 text-gray-600')}
+                        >
+                          {s.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                   {/* Rating */}
+                   <div className="space-y-4">
+                    <label className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-gray-600">Rating</label>
+                    <div className="flex flex-wrap gap-2">
+                      {RATINGS.map(r => (
+                        <button 
+                          key={r.value} onClick={() => setRating(rating === r.value ? '' : r.value)}
+                          className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider border transition-all", rating === r.value ? 'bg-primary border-primary text-black' : 'bg-white/3 border-white/5 text-gray-600')}
+                        >
+                          {r.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                   {/* Language */}
+                   <div className="space-y-4">
+                    <label className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-gray-600">Language</label>
+                    <div className="flex flex-wrap gap-2">
+                      {LANGUAGES.map(l => (
+                        <button 
+                          key={l.value} onClick={() => setLanguage(language === l.value ? '' : l.value)}
+                          className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider border transition-all", language === l.value ? 'bg-primary border-primary text-black' : 'bg-white/3 border-white/5 text-gray-600')}
+                        >
+                          {l.name}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
                 {/* Genres */}
-                <div className="md:col-span-2 space-y-6">
+                <div className="md:col-span-2 space-y-6 bg-white/2 rounded-[3rem] p-10 border border-white/5">
                   <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] text-gray-600">
-                    <Sparkles size={14} className="text-primary" /> Parameter Overrides (Genres)
+                    <Sparkles size={14} className="text-primary" /> Genre Taxonomy (40+ Nodes Detected)
                   </label>
-                  <div className="flex flex-wrap gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                     {GENRES.map(g => (
                       <button 
                         key={g.id} onClick={() => toggleGenre(g.id)}
-                        className={cn("px-8 py-4 rounded-3xl text-[11px] font-black uppercase tracking-tighter border transition-all", selectedGenres.includes(g.id) ? 'bg-primary border-primary text-black' : 'bg-white/3 border-white/5 text-gray-500 hover:border-white/20')}
+                        className={cn("px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-tight border text-left transition-all", selectedGenres.includes(g.id) ? 'bg-primary border-primary text-black' : 'bg-[#050505] border-white/5 text-gray-500 hover:border-white/20')}
                       >
                         {g.name}
                       </button>
@@ -211,46 +331,38 @@ export default function Filter() {
                   </div>
                 </div>
 
-                {/* Rating */}
+                {/* Year & Season */}
                 <div className="space-y-6">
                    <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] text-gray-600">
-                    <ShieldIcon size={14} className="text-primary" /> Security Rating
+                    <Calendar size={14} className="text-primary" /> Temporal Coordinate
                   </label>
-                   <div className="flex flex-wrap gap-3">
-                    {RATINGS.map(r => (
-                      <button 
-                        key={r.value} onClick={() => setRating(rating === r.value ? '' : r.value)}
-                        className={cn("px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all", rating === r.value ? 'bg-primary border-primary text-black' : 'bg-white/3 border-white/5 text-gray-600 hover:border-white/20')}
-                      >
-                        {r.name}
-                      </button>
-                    ))}
+                  <div className="flex gap-4">
+                    <input 
+                      type="number" value={year} onChange={(e) => setYear(e.target.value)}
+                      placeholder="Year"
+                      min="1950" max="2026"
+                      className="w-1/2 bg-white/3 border border-white/5 rounded-2xl p-4 text-white font-black italic outline-none focus:border-primary/40 transition-all placeholder:text-gray-800"
+                    />
+                    <select 
+                      value={season} onChange={(e) => setSeason(e.target.value)}
+                      className="w-1/2 bg-white/3 border border-white/5 rounded-2xl p-4 text-white font-black uppercase tracking-widest text-[10px] outline-none focus:border-primary/40 transition-all"
+                    >
+                      <option value="">Season</option>
+                      {SEASONS.map(s => <option key={s.value} value={s.value}>{s.name}</option>)}
+                    </select>
                   </div>
                 </div>
 
-                {/* Year */}
-                <div className="space-y-6">
-                   <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] text-gray-600">
-                    <Calendar size={14} className="text-primary" /> Temporal Coordinate (Year)
-                  </label>
-                  <input 
-                    type="number" value={year} onChange={(e) => setYear(e.target.value)}
-                    placeholder="2024"
-                    min="1950" max="2026"
-                    className="w-full bg-white/3 border border-white/5 rounded-3xl p-6 text-white font-black italic outline-none focus:border-primary/40 transition-all placeholder:text-gray-800"
-                  />
-                </div>
-
                 {/* Sort Order */}
-                <div className="md:col-span-2 space-y-6 pt-8 border-t border-white/5">
+                <div className="space-y-6">
                    <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] text-gray-600">
                     <Activity size={14} className="text-primary" /> Sort Protocol
                   </label>
-                  <div className="flex flex-wrap gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     {ORDER_BY.map(o => (
                       <button 
                         key={o.value} onClick={() => setOrderBy(o.value)}
-                        className={cn("px-8 py-4 rounded-3xl text-[11px] font-black uppercase tracking-widest border transition-all", orderBy === o.value ? 'bg-primary border-primary text-black' : 'bg-white/3 border-white/5 text-gray-500 hover:border-white/20')}
+                        className={cn("px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all text-left", orderBy === o.value ? 'bg-primary border-primary text-black' : 'bg-white/3 border-white/5 text-gray-500 hover:border-white/20')}
                       >
                         {o.name}
                       </button>
@@ -262,7 +374,17 @@ export default function Filter() {
               <div className="flex gap-6">
                 <button 
                    onClick={() => {
-                     setSearch(''); setSelectedGenres([]); setStatus([]); setRating(''); setYear('');
+                     setSearch(''); 
+                     setSelectedGenres([]); 
+                     setStatus(''); 
+                     setRating(''); 
+                     setYear('');
+                     setType('');
+                     setLanguage('');
+                     setSeason('');
+                     setOrderBy('popularity');
+                     setMinScore(0.0);
+                     setMaxScore(10.0);
                    }}
                    className="flex-1 bg-white/3 border border-white/5 text-white/40 py-8 rounded-[2.5rem] font-black uppercase tracking-widest text-[12px] hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all"
                 >

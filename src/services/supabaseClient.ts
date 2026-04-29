@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SB_URL = (import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL || import.meta.env.REACT_APP_SUPABASE_URL || "https://wnjdlqqlmzjklxcgiqap.supabase.co").trim().replace(/\/$/, "");
+const SB_URL = (import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL || import.meta.env.REACT_APP_SUPABASE_URL || "https://wnjdlqqlmzjklxcgiqap.supabase.co").trim().replace(/\/+$/, "");
 const SB_KEY = (import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || import.meta.env.REACT_APP_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InduamRscXFsbXpqa2x4Y2dpcWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3ODU4MzIsImV4cCI6MjA5MjM2MTgzMn0.Z-WM1XtqO2CNPB9qmi0ivswAE-MVE8tBrrpqX1i5rRE").trim();
 
-if (!SB_URL || SB_URL.includes("your-project-id") || !SB_KEY || SB_KEY.includes("your-anon-key")) {
+if (!SB_URL || !SB_KEY || SB_URL.includes("your-project-id")) {
   console.error("KERNEL_CRITICAL: API Keys missing or invalid in environment! Handshake failed.");
 }
 
@@ -21,8 +21,16 @@ export const getClient = () => {
     if (!SB_URL || !SB_KEY) return null;
     try {
       _supabase = createClient(SB_URL, SB_KEY, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        },
         global: {
-          headers: { 'apikey': SB_KEY },
+          headers: { 
+            'apikey': SB_KEY,
+            'X-Client-Info': 'sekta-engine-v4'
+          },
         },
       });
     } catch (err) {

@@ -4,13 +4,14 @@ import {
   Play, Pause, Volume2, VolumeX, Maximize, Settings, 
   SkipForward, ChevronLeft, ChevronRight, Layout, HardDrive,
   Monitor, Subtitles, Mic, RotateCcw, RotateCw, Palette, Type, Globe,
-  Activity, Zap, Shield, Info, Clock, Languages
+  Activity, Zap, Shield, Info, Clock, Languages, FastForward
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { AddonResolver, AddonSource, StreamLink } from '../services/AddonResolver';
 import { syncWatchHistory } from '../services/supabaseClient';
 import { EpisodeList } from './EpisodeList';
 import { jikanService } from '../services/jikan';
+import { SektaPlayer } from './SektaPlayer';
 
 interface VideoPlayerProps {
   animeId: number;
@@ -42,6 +43,11 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [subOffset, setSubOffset] = useState(0); // AI Subtitle Sync
   const [subtitleSize, setSubtitleSize] = useState(100);
   
+  // Synaptic Player Features
+  const [autoPlay, setAutoPlay] = useState(localStorage.getItem('sekta_autoplay') !== 'false');
+  const [autoNext, setAutoNext] = useState(localStorage.getItem('sekta_autonext') === 'true');
+  const [autoSkipIntro, setAutoSkipIntro] = useState(localStorage.getItem('sekta_autoskip') === 'true');
+  
   const [episodes, setEpisodes] = useState<any[]>([]);
   const [addons, setAddons] = useState<AddonSource[]>([]);
   const [activeAddon, setActiveAddon] = useState<string | null>(null);
@@ -49,9 +55,21 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [activeLink, setActiveLink] = useState<StreamLink | null>(null);
   const [loadingLinks, setLoadingLinks] = useState(false);
   
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const syncTimerRef = useRef<number>(0);
+
+  useEffect(() => {
+    localStorage.setItem('sekta_autoplay', String(autoPlay));
+  }, [autoPlay]);
+
+  useEffect(() => {
+    localStorage.setItem('sekta_autonext', String(autoNext));
+  }, [autoNext]);
+
+  useEffect(() => {
+    localStorage.setItem('sekta_autoskip', String(autoSkipIntro));
+  }, [autoSkipIntro]);
 
   useEffect(() => {
     localStorage.setItem('sekta_theater', String(isTheater));
@@ -92,50 +110,52 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   };
 
-  const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      const current = videoRef.current.currentTime;
-      const dur = videoRef.current.duration || 1440;
-      setCurrentTime(current);
-      setDuration(dur);
-      setProgress((current / dur) * 100);
+  const handleTimeUpdate = (current: number, dur: number) => {
+    setCurrentTime(current);
+    setDuration(dur || 1440);
+    setProgress((current / (dur || 1440)) * 100);
 
-      if (dur - current <= 120 && !showNextOverlay) setShowNextOverlay(true);
+    if (dur && dur - current <= 120 && !showNextOverlay) setShowNextOverlay(true);
 
-      syncTimerRef.current += 1;
-      if (syncTimerRef.current >= 300) { // Every ~10s of playback
-        syncTimerRef.current = 0;
-        syncWatchHistory({
-          user_id: userId,
-          anime_id: animeId,
-          anime_title: animeTitle,
-          episode_id: currentEpisode,
-          progress_ms: current * 1000,
-          image_url: imageUrl,
-          status: 'Watching'
-        });
-      }
+    syncTimerRef.current += 1;
+    if (syncTimerRef.current >= 300) { // Every ~10s of playback
+      syncTimerRef.current = 0;
+      syncWatchHistory({
+        user_id: userId,
+        anime_id: animeId,
+        anime_title: animeTitle,
+        episode_id: currentEpisode,
+        progress_ms: current * 1000,
+        image_url: imageUrl,
+        status: 'Watching'
+      });
     }
   };
 
   const togglePlay = () => {
-    if (videoRef.current) {
-      if (isPlaying) videoRef.current.pause();
-      else videoRef.current.play();
-      setIsPlaying(!isPlaying);
-    }
+    setIsPlaying(!isPlaying);
   };
 
   const formatTime = (s: number) => {
+    if (!s || isNaN(s)) return '0:00';
     const m = Math.floor(s / 60);
     const rs = Math.floor(s % 60);
     return `${m}:${rs.toString().padStart(2, '0')}`;
   };
 
   const jump = (direction: 'back' | 'forward') => {
-    if (videoRef.current) {
-      const next = direction === 'forward' ? Math.min(videoRef.current.currentTime + jumpTime, videoRef.current.duration) : Math.max(videoRef.current.currentTime - jumpTime, 0);
-      videoRef.current.currentTime = next;
+    if (playerRef.current) {
+      const next = direction === 'forward' ? Math.min(currentTime + jumpTime, duration) : Math.max(currentTime - jumpTime, 0);
+      playerRef.current.seekTo(next);
+    }
+  };
+
+  const handleEnded = () => {
+    setIsPlaying(false);
+    if (autoNext) {
+      onEpisodeChange(currentEpisode + 1);
+    } else {
+      setShowNextOverlay(true);
     }
   };
 
@@ -143,17 +163,22 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     <div ref={containerRef} className={cn("w-full bg-black min-h-screen text-white select-none", isTheater ? "fixed inset-0 z-[100]" : "space-y-20 p-6 md:p-12 lg:p-20")}>
       <div className={cn("bg-[#050505] transition-all duration-700 relative overflow-hidden group/player", isTheater ? "w-full h-full" : "rounded-[4rem] aspect-video shadow-4xl border-4 border-white/5 mx-auto max-w-7xl")}>
         
-        {/* NATIVE VIDEO CORE */}
-        <video 
-          ref={videoRef}
-          src={activeLink?.url}
-          className="w-full h-full object-contain"
+        {/* SEKTA PLAYER CORE */}
+        <SektaPlayer 
+          ref={playerRef}
+          src={activeLink?.url || ''}
+          poster={imageUrl}
+          autoPlay={autoPlay}
+          isPlaying={isPlaying}
           onTimeUpdate={handleTimeUpdate}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
-          onClick={togglePlay}
-          onEnded={() => setShowNextOverlay(true)}
+          onEnded={handleEnded}
+          className="w-full h-full"
         />
+
+        {/* CLICK LAYER */}
+        <div className="absolute inset-0 z-30" onClick={togglePlay} />
 
         {/* LOADING SHIMMER */}
         <AnimatePresence>
@@ -194,7 +219,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <div className="relative h-2 w-full bg-white/5 rounded-full cursor-pointer overflow-hidden group/bar" onClick={(e) => {
              const rect = e.currentTarget.getBoundingClientRect();
              const p = (e.clientX - rect.left) / rect.width;
-             if (videoRef.current) videoRef.current.currentTime = p * videoRef.current.duration;
+             if (playerRef.current) playerRef.current.seekTo(p * duration);
           }}>
               <div className="h-full bg-primary shadow-[0_0_30px_var(--primary)] relative" style={{ width: `${progress}%` }}>
                   <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-2xl scale-0 group-hover/bar:scale-100 transition-transform" />
@@ -278,6 +303,37 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   <h4 className="text-2xl font-black italic uppercase tracking-tighter">Engine Setup</h4>
                 </div>
                 <button onClick={() => setShowSettings(false)} className="text-gray-500 hover:text-white">CLOSE</button>
+              </div>
+
+              {/* Visualization Setup */}
+              <div className="space-y-6 border-t border-white/5 pt-8">
+                  <div className="flex items-center gap-4 text-white">
+                      <Monitor size={20} className="text-primary" />
+                      <span className="text-[11px] font-black uppercase tracking-widest">Synaptic Features</span>
+                  </div>
+                  <div className="space-y-4">
+                    <button 
+                      onClick={() => setAutoPlay(!autoPlay)}
+                      className={cn("w-full py-4 px-6 rounded-xl flex items-center justify-between border-2 transition-all", autoPlay ? "bg-primary/10 border-primary/40 text-primary" : "bg-white/5 border-white/5 text-gray-500")}
+                    >
+                      <span className="text-[10px] font-black uppercase tracking-widest">Auto Play</span>
+                      <div className={cn("w-2 h-2 rounded-full", autoPlay ? "bg-primary shadow-[0_0_10px_var(--primary)]" : "bg-gray-800")} />
+                    </button>
+                    <button 
+                      onClick={() => setAutoNext(!autoNext)}
+                      className={cn("w-full py-4 px-6 rounded-xl flex items-center justify-between border-2 transition-all", autoNext ? "bg-primary/10 border-primary/40 text-primary" : "bg-white/5 border-white/5 text-gray-500")}
+                    >
+                      <span className="text-[10px] font-black uppercase tracking-widest">Auto Next</span>
+                      <div className={cn("w-2 h-2 rounded-full", autoNext ? "bg-primary shadow-[0_0_10px_var(--primary)]" : "bg-gray-800")} />
+                    </button>
+                    <button 
+                      onClick={() => setAutoSkipIntro(!autoSkipIntro)}
+                      className={cn("w-full py-4 px-6 rounded-xl flex items-center justify-between border-2 transition-all", autoSkipIntro ? "bg-primary/10 border-primary/40 text-primary" : "bg-white/5 border-white/5 text-gray-500")}
+                    >
+                      <span className="text-[10px] font-black uppercase tracking-widest">Auto Skip Intro (AI)</span>
+                      <div className={cn("w-2 h-2 rounded-full", autoSkipIntro ? "bg-primary shadow-[0_0_10px_var(--primary)]" : "bg-gray-800")} />
+                    </button>
+                  </div>
               </div>
 
               {/* Quality Node Selector */}
