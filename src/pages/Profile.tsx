@@ -182,8 +182,24 @@ export default function Profile() {
     <div className="space-y-16">
       <div className="flex items-center justify-between">
         <h2 className="text-4xl font-black text-white italic uppercase">Stremio Protocol</h2>
-        <div className="flex items-center gap-4 text-[10px] font-black uppercase text-gray-700 tracking-widest">
-           <Monitor size={16} /> Node Status: <span className="text-primary">Online</span>
+        <div className="flex items-center gap-6">
+           <button 
+             onClick={() => {
+               if (user) {
+                 getSupabase().from('user_addons').delete().eq('user_id', user.id).then(() => loadAddons());
+               } else {
+                 localStorage.removeItem('sekta_addons');
+                 loadAddons();
+               }
+               setMessage({ type: 'success', text: 'All Node Extensions Purged.' });
+             }}
+             className="text-red-500 text-[10px] font-black uppercase tracking-widest hover:underline"
+           >
+             Clear All Nodes
+           </button>
+           <div className="flex items-center gap-4 text-[10px] font-black uppercase text-gray-700 tracking-widest">
+              <Monitor size={16} /> Node Status: <span className="text-primary">Online</span>
+           </div>
         </div>
       </div>
 
